@@ -36,4 +36,25 @@ router.delete('/deletetask/:id', async (req, res) => {
       res.status(500).json({ error: 'Internal Server Error' });
     }
   });
+  router.put('/updatetask/:id', async (req, res) => {
+    const taskId = req.params.id;
+    const { taskName, taskDescription } = req.body;
+  
+    try {
+      const updatedTask = await User.findByIdAndUpdate(
+        taskId,
+        { name: taskName, Description: taskDescription },
+        { new: true }
+      );
+  
+      if (!updatedTask) {
+        return res.status(404).json({ message: 'Task not found' });
+      }
+  
+      res.status(200).json(updatedTask);
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: 'Internal Server Error' });
+    }
+  });
 module.exports = router;
