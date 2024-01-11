@@ -1,30 +1,39 @@
 const express = require('express');
 const router = express.Router();
-const User = require('../models/task');
-
+const Task = require('../models/task');
+// for get all the data
+router.get('/', async (req, res) => {
+  try {
+    const tasks = await Task.find();
+    res.json(tasks);
+  } catch (err) {
+    console.error('Error fetching tasks:', err);
+    res.status(500).json({ message: 'Internal Server Error' });
+  }
+});
+//for adding particular task
 router.post('/addtask', async (req, res) => {
     const formData = req.body;
-
-    try {
-      const newTask = new User({
-        name: formData.taskName,
-        Description: formData.taskDescription,
-
+    console.log(formData);
+    try{
+      const newTask = new Task({
+        name: formData.title,
+        Description: formData.description,
       });
-  
       await newTask.save();
   
       res.status(200).json(newTask);
-    } catch (error) {
+    }catch (error) {
       console.error(error);
       res.status(500).json({ error: 'Internal Server Error' });
     }
 });
+//for deleting particular task with id
 router.delete('/deletetask/:id', async (req, res) => {
     const taskId = req.params.id;
   
     try {
-      const deletedTask = await User.findByIdAndDelete(taskId);
+      const deletedTask = await Task.findByIdAndDelete(taskId);
   
       if (!deletedTask) {
         return res.status(404).json({ message: 'Task not found' });
@@ -36,14 +45,15 @@ router.delete('/deletetask/:id', async (req, res) => {
       res.status(500).json({ error: 'Internal Server Error' });
     }
   });
-  router.put('/updatetask/:id', async (req, res) => {
+  // for updating task with particular id
+  router.patch('/updatetask/:id', async (req, res) => {
     const taskId = req.params.id;
-    const { taskName, taskDescription } = req.body;
+    const Data = req.body;
   
     try {
-      const updatedTask = await User.findByIdAndUpdate(
+      const updatedTask = await Task.findByIdAndUpdate(
         taskId,
-        { name: taskName, Description: taskDescription },
+        { name: Data.title, Description: Data.description },
         { new: true }
       );
   
